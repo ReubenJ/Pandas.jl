@@ -7,10 +7,8 @@ IteratorInterfaceExtensions.isiterable(x::DataFrame) = true
 TableTraits.isiterabletable(x::DataFrame) = true
 
 function TableTraits.getiterator(df::DataFrame)
-    col_names_raw = [i for i in Pandas.columns(df)]
-    col_names = Symbol.(col_names_raw)
-
-    column_data = [eltype(df[i])==String ? [df[i][j] for j=1:length(df)] : values(df[i]) for i in col_names_raw]
+    col_names = Symbol.(Pandas.columns(df))
+    column_data = ([df[i]...] for i in col_names)
 
     return create_tableiterator(column_data, col_names)
 end
@@ -19,10 +17,10 @@ TableTraits.supports_get_columns_copy_using_missing(df::DataFrame) = true
 
 function TableTraits.get_columns_copy_using_missing(df::Pandas.DataFrame)
     # return a named tuple of columns here
-    col_names_raw = [i for i in Pandas.columns(df)]
-    col_names = Symbol.(col_names_raw)
-    cols = (Array(eltype(df[i])==String ? [df[i][j] for j=1:length(df)] : df[i]) for i in col_names_raw)
-    return NamedTuple{tuple(col_names...)}(tuple(cols...))
+    col_names = Symbol.(Pandas.columns(df))
+    column_data = Tuple([df[i]...] for i in col_names)
+
+    return NamedTuple(col_names .=> column_data)
 end
 
 function _construct_pandas_from_iterabletable(source)
