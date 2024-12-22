@@ -57,4 +57,11 @@ it3_collected = collect(IteratorInterfaceExtensions.getiterator(df3))
 cols3 = TableTraits.get_columns_copy_using_missing(df3)
 @test isequal(cols3, (a=[NaN,2.], b=["John", "Sally"], c=[3.2, NaN]))
 
+# Create a non-standard index in the python representation
+df4 = DataFrame(["a",]; index=[1,], columns=[:x])
+cols4 = TableTraits.get_columns_copy_using_missing(df4)
+@test length(cols4) == 1
+it4 = IteratorInterfaceExtensions.getiterator(df4)
+@test length(it4) == 1
+
 end
